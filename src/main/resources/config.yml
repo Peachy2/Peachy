@@ -1,0 +1,20 @@
+core:
+  http:
+    transport: JSoup
+  logging:
+    type: Console
+    bufferred: true
+    level: INFO
+    auto_shutdown: true
+
+wiki:
+  baseurl: http://en.wikipedia.org/w/api.php
+  username: Example
+  password: Password
+  maxlag: 0
+  editsperminute: 0
+  runpage: null
+  optout: null
+  stopnewmessages: false
+  nobots: true
+  cookiejar: PEACHYTODO
