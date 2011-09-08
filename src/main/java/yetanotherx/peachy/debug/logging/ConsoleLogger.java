@@ -12,6 +12,13 @@ public class ConsoleLogger extends StreamLogger {
     public ConsoleLogger(EventDispatcher dispatcher) {
         super(dispatcher);
     }
+
+    @Override
+    public void initialize(EventDispatcher dispatcher, ConfigNode options) {
+        this.setStream(System.out);
+    }
+    
+    
     
     
     

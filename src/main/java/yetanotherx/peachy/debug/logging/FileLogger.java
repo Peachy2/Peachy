@@ -1,22 +1,29 @@
 package yetanotherx.peachy.debug.logging;
 
-import java.util.logging.Level;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import yetanotherx.peachy.config.ConfigNode;
 import yetanotherx.peachy.event.EventDispatcher;
+import yetanotherx.peachy.exception.PeachyException;
 
-public class FileLogger extends PeachyLogger {
-    
-    public FileLogger(EventDispatcher dispatcher) {
-        this.initialize(dispatcher, new ConfigNode());
-    }
-    
+public class FileLogger extends StreamLogger {
+
     public FileLogger(EventDispatcher dispatcher, ConfigNode options) {
-        this.initialize(dispatcher, options);
+        super(dispatcher, options);
+    }
+
+    public FileLogger(EventDispatcher dispatcher) {
+        super(dispatcher);
     }
 
     @Override
-    protected void doLog(String message, Level level) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void initialize(EventDispatcher dispatcher, ConfigNode options) {
+        try {
+            this.setStream(new FileOutputStream(new File("PEACHYTODO")));
+        } catch (FileNotFoundException ex) {
+            throw new PeachyException("Internal stream error - " + ex.getMessage());
+        }
     }
     
 }

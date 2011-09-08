@@ -14,7 +14,7 @@ public abstract class PeachyCore {
 
     protected DoubleValueHashMap<String, ConfigType, String> configs = new DoubleValueHashMap<String, ConfigType, String>();
     protected String[] args;
-    
+
     public void load() {
         this.configure();
 
@@ -39,29 +39,28 @@ public abstract class PeachyCore {
 
             PeachyContext.createInstance(collection.getFirst(), conf);
         }
-        
-        for( PeachyContext context : PeachyContext.getInstances() ) {
+
+        for (PeachyContext context : PeachyContext.getInstances()) {
+            conf.getLogger().info("Loading " + context.getConfiguration().getConf().getString("core.meta.script_name", "Peachy") + " version " + context.getConfiguration().getConf().getString("core.meta.version", "(unset)"));
             context.dispatch();
         }
-    
+
     }
 
     public void setConfig(String name, ConfigType type, String file) {
         this.configs.set(file, type, file);
     }
-    
+
     public abstract void configure();
-    
+
     public static void startMain(Class<?> main, String[] args) {
         try {
             PeachyCore inst = (PeachyCore) main.newInstance();
             inst.args = args;
             inst.load();
-        }
-        catch( Exception e ) {
+        } catch (Exception e) {
             System.out.println("ERROR: Could not start Peachy!");
             e.printStackTrace();
         }
     }
-
 }
