@@ -7,11 +7,11 @@ import yetanotherx.peachy.event.EventDispatcher;
 public class NoLogger extends PeachyLogger {
 
     public NoLogger(EventDispatcher dispatcher) {
-        this.initialize(dispatcher, new ConfigNode());
+        this.initializeCore(dispatcher, new ConfigNode());
     }
     
     public NoLogger(EventDispatcher dispatcher, ConfigNode options) {
-        this.initialize(dispatcher, options);
+        this.initializeCore(dispatcher, options);
     }
 
     @Override

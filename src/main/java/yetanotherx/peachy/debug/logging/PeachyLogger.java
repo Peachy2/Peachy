@@ -10,16 +10,43 @@ public abstract class PeachyLogger {
     protected ConfigNode options;
     protected Level level = Level.INFO;
     
-    public void initialize(EventDispatcher dispatcher, ConfigNode options) {
+    public static PeachyLogger createLogger(EventDispatcher dispatcher, ConfigNode conf) {
+        LoggerType type = LoggerType.valueOf(conf.getString("type", "NONE").toUpperCase());
+        ConfigNode loggingConf = conf;
+        
+        PeachyLogger logger = null;
+        
+        switch (type) {
+            case AGGREGATE:
+                logger = new AggregateLogger(dispatcher, loggingConf);
+                break;
+            case CONSOLE:
+                logger = new ConsoleLogger(dispatcher, loggingConf);
+                break;
+            case FILE:
+                logger = new FileLogger(dispatcher, loggingConf);
+                break;
+            case NONE:
+                logger = new NoLogger(dispatcher, loggingConf);
+                break;
+            case STREAM:
+                logger = new StreamLogger(dispatcher, loggingConf);
+                break;
+        }
+        
+        return logger;
+    }
+    
+    public void initializeCore(EventDispatcher dispatcher, ConfigNode options) {
         
         this.dispatcher = dispatcher;
         this.options = options;
         
         if( this.options.hasProperty("level") ) {
-            this.setLogLevel(Level.parse(this.options.getString("level", "INFO")));
+            this.setLogLevel(Level.parse(this.options.getString("level", "INFO").toUpperCase()));
         }
         
-        if( this.options.hasProperty("auto_shutdown") ) {
+        if( this.options.getBoolean("auto_shutdown", true) == true ) {
             Runtime.getRuntime().addShutdownHook(new LoggingShutdownThread(this));
         }
     }

@@ -4,36 +4,30 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import yetanotherx.peachy.config.ConfigNode;
 import yetanotherx.peachy.event.EventDispatcher;
-import yetanotherx.peachy.exception.InvalidArgumentException;
 
 public class AggregateLogger extends PeachyLogger {
     
-    protected ArrayList<PeachyLogger> loggers;
+    protected ArrayList<PeachyLogger> loggers = new ArrayList<PeachyLogger>();
     
     public AggregateLogger(EventDispatcher dispatcher) {
-        this.initialize(dispatcher, new ConfigNode());
+        this.initializeAggregate(dispatcher, new ConfigNode());
     }
     
     public AggregateLogger(EventDispatcher dispatcher, ConfigNode options) {
-        this.initialize(dispatcher, options);
+        this.initializeAggregate(dispatcher, options);
     }
 
-    @Override
-    public final void initialize(EventDispatcher dispatcher, ConfigNode options) {
+    public final void initializeAggregate(EventDispatcher dispatcher, ConfigNode options) {
         this.dispatcher = dispatcher;
         this.options = options;
         
         if( this.options.hasProperty("loggers") ) {
             for( ConfigNode node : this.options.getNodes("loggers").values() ) {
-                try {
-                    this.loggers.add((PeachyLogger)Class.forName("yetanotherx.peachy.debug.logging." + node.getString("class", "NoLogger")).newInstance());
-                } catch (Exception ex) {
-                    throw new InvalidArgumentException("No such logger with the name " +  node.getString("class", "NOT GIVEN") + " found!");
-                }
+                this.loggers.add(PeachyLogger.createLogger(this.dispatcher, node));
             }
         }
         
-        super.initialize(dispatcher, options);
+        super.initializeCore(dispatcher, options);
     }
 
     public ArrayList<PeachyLogger> getLoggers() {
@@ -43,8 +37,6 @@ public class AggregateLogger extends PeachyLogger {
     public void setLoggers(ArrayList<PeachyLogger> loggers) {
         this.loggers = loggers;
     }
-
-    
 
     @Override
     protected void doLog(String message, Level level) {

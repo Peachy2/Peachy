@@ -7,19 +7,17 @@ public class ConsoleLogger extends StreamLogger {
 
     public ConsoleLogger(EventDispatcher dispatcher, ConfigNode options) {
         super(dispatcher, options);
+        this.initializeConsole(dispatcher, options);
     }
 
     public ConsoleLogger(EventDispatcher dispatcher) {
         super(dispatcher);
+        this.initializeConsole(dispatcher, new ConfigNode());
     }
 
-    @Override
-    public void initialize(EventDispatcher dispatcher, ConfigNode options) {
+    public final void initializeConsole(EventDispatcher dispatcher, ConfigNode options) {
         this.setStream(System.out);
+        super.initializeCore(dispatcher, options);
     }
-    
-    
-    
-    
     
 }

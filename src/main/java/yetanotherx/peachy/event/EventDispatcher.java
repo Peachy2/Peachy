@@ -4,17 +4,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import yetanotherx.peachy.exception.EventErrorException;
-import yetanotherx.peachy.util.collections.TwoValueCollection;
 
 public class EventDispatcher {
     
-    protected HashMap<String, ArrayList<TwoValueCollection<Object, Method>>> listeners = new HashMap<String, ArrayList<TwoValueCollection<Object, Method>>>();
+    protected HashMap<String, ArrayList<EventDispatcherCallback<?>>> listeners = new HashMap<String, ArrayList<EventDispatcherCallback<?>>>();
     
-    public void connect(String name, Object obj, Method listener) {
+    public void connect(String name, EventDispatcherCallback<?> callback) {
         if( !listeners.containsKey(name) ) {
-            listeners.put(name, new ArrayList<TwoValueCollection<Object, Method>>());
+            listeners.put(name, new ArrayList<EventDispatcherCallback<?>>());
         }
-        listeners.get(name).add(new TwoValueCollection<Object, Method>(obj, listener));
+        listeners.get(name).add(callback);
     }
     
     public void disconnect(String name, Method listener) {
@@ -27,46 +26,47 @@ public class EventDispatcher {
     }
     
     public Event notify(Event event) {
-        ArrayList<TwoValueCollection<Object, Method>> list = listeners.get(event.getName());
+        ArrayList<EventDispatcherCallback<?>> list = listeners.get(event.getName());
         if( list == null ) return event;
         
-        for( TwoValueCollection<Object, Method> callback : list ) {
+        for( EventDispatcherCallback<?> callback : list ) {
             try {
-                callback.getSecond().invoke(callback.getFirst(), new Object[] {event} );
+                callback.invoke(event);
             } catch (Exception ex) {
-                throw new EventErrorException("Could not notify event \"" + event.getName() + "\"");
+                ex.printStackTrace();
+                throw new EventErrorException("Could not notify event \"" + event.getName() + "\" (" + ex.getMessage() + ")");
             }
         }
         return event;
     }
     
     public Event notifyUntil(Event event) {
-        ArrayList<TwoValueCollection<Object, Method>> list = listeners.get(event.getName());
+        ArrayList<EventDispatcherCallback<?>> list = listeners.get(event.getName());
         if( list == null ) return event;
         
-        for( TwoValueCollection<Object, Method> callback : list) {
+        for( EventDispatcherCallback<?> callback : list ) {
             try {
-                if( callback.getSecond().invoke(callback.getFirst(), new Object[] {event} ) != null ) {
+                if( callback.invoke(event) != null ) {
                     event.setProcessed(true);
                     return event;
                 }
             } catch (Exception ex) {
-                throw new EventErrorException("Could not notify event \"" + event.getName() + "\"");
+                throw new EventErrorException("Could not notify event \"" + event.getName() + "\" (" + ex.getMessage() + ")");
             }
         }
         return event;
     }
     
     public Event filter(Event event, Object value) {
-        ArrayList<TwoValueCollection<Object, Method>> list = listeners.get(event.getName());
+        ArrayList<EventDispatcherCallback<?>> list = listeners.get(event.getName());
         if( list == null ) return event;
         
-        for( TwoValueCollection<Object, Method> callback : list) {
+        for( EventDispatcherCallback<?> callback : list ) {
             try {
-                Object out = callback.getSecond().invoke(callback.getFirst(), new Object[] {event, value} );
+                Object out = callback.invoke(event);
                 event.setReturned(out);
             } catch (Exception ex) {
-                throw new EventErrorException("Could not notify event \"" + event.getName() + "\"");
+                throw new EventErrorException("Could not notify event \"" + event.getName() + "\" (" + ex.getMessage() + ")");
             }
         }
         return event;
@@ -79,9 +79,9 @@ public class EventDispatcher {
         return !listeners.get(name).isEmpty();
     }
     
-    public ArrayList<TwoValueCollection<Object, Method>> getListeners(String name) {
+    public ArrayList<EventDispatcherCallback<?>> getListeners(String name) {
         if( !listeners.containsKey(name) ) {
-            return new ArrayList<TwoValueCollection<Object, Method>>();
+            return new ArrayList<EventDispatcherCallback<?>>();
         }
         return listeners.get(name);
     }

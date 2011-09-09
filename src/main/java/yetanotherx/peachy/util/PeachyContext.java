@@ -5,6 +5,7 @@ import java.util.HashMap;
 import yetanotherx.peachy.config.BaseConfiguration;
 import yetanotherx.peachy.event.Event;
 import yetanotherx.peachy.event.EventDispatcher;
+import yetanotherx.peachy.event.EventDispatcherCallback;
 import yetanotherx.peachy.exception.UnsetParameterException;
 
 public class PeachyContext {
@@ -57,4 +58,5 @@ public class PeachyContext {
     public void dispatch() {
         this.getDispatcher().notify(new Event(this, "peachy.context_dispatch"));
     }
+
 }

@@ -21,26 +21,7 @@ public abstract class BaseConfiguration {
         this.conf = new ConfigNode();
         this.conf.root = this.configBaseNode;
         
-        LoggerType type = LoggerType.valueOf(conf.getString("core.logging.type", "NONE").toUpperCase());
-        ConfigNode loggingConf = conf.getNode("core.logging");
-        
-        switch (type) {
-            case AGGREGATE:
-                this.logger = new AggregateLogger(this.dispatcher, loggingConf);
-                break;
-            case CONSOLE:
-                this.logger = new ConsoleLogger(this.dispatcher, loggingConf);
-                break;
-            case FILE:
-                this.logger = new FileLogger(this.dispatcher, loggingConf);
-                break;
-            case NONE:
-                this.logger = new NoLogger(this.dispatcher, loggingConf);
-                break;
-            case STREAM:
-                this.logger = new StreamLogger(this.dispatcher, loggingConf);
-                break;
-        }
+        this.logger = PeachyLogger.createLogger(this.dispatcher, this.conf.getNode("core.logging"));
     }
 
     protected abstract void loadConfigFile();
